@@ -1,6 +1,14 @@
 import numpy as np
 import scipy.signal as signal
 
+def normalise(X):
+    from scipy.stats import zscore
+    """
+    Normalises the data for input in certain classifiers.
+    Necessary for NN input.
+    """
+    return zscore(X)
+
 def dropout_channels(X, threshold = 0.05):
     from scipy.special import ndtr
     """
@@ -37,19 +45,15 @@ def dropout_channels(X, threshold = 0.05):
 
     return channel_list
 
-def cut_samples(subject):
-    """
-    Removes all samples before the time of stimulus.
-    """
-    X = subject['X']
-    y = subject['y']
-    pre_stimulus = subject['tmin'] # Seconds before before stimulus
-    frequency = subject['sfreq'] # Samples per second
-    discarded = int(abs(pre_stimulus)*frequency)
+def cut_samples(X, pre, after=True):
+    m, n, o = X.shape
 
-    X = X[:, :, discarded:]
+    discarded_left = pre
+    discarded_right = None
 
-    return X, y
+    if after: discarded_right = o - discarded_left
+
+    return X[:, :, discarded_left:discarded_right].copy()
 
 def butter_lowpass_filter(data, nyquist, cutoff, order=6):
     """
