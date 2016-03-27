@@ -29,7 +29,7 @@ X_train = pipeline.run(X_train)
 X_test = pipeline.run(X_test)
 
 # Create classifier
-(_, channels, samples) = X_train.shape
+_, channels, samples = X_train.shape
 model = nn.create_cnn(channels, samples)
 
 batch_size = 16
