@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.io import loadmat
 
-def get_files(folder):
+def get_files(folder: str):
     """
     Retrieves a list of string of the filenames
     of .mat files in a folder.
@@ -18,7 +18,7 @@ def get_files(folder):
 
     return train_files, test_files
 
-def load_subjects(folder, no_of_subjects=False):
+def load_subjects(folder: str, no_of_subjects: int = 0):
     """
     Loads a number of subjects and splits the data accordingly.
     """
@@ -47,7 +47,7 @@ def load_subjects(folder, no_of_subjects=False):
 
     return X_train, X_test, y_train, y_test
 
-def load_meta(folder):
+def load_meta(folder: str):
     """
     Loads the meta data for a .mat files in a folder.
     """
@@ -60,7 +60,7 @@ def load_meta(folder):
 
     return sfreq, tmin, tmax
 
-def create_submission(ids, labels, filename):
+def create_submission(ids, labels, filename: str):
     """
     Creates a submission file for Kaggle.
     """

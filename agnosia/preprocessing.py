@@ -9,7 +9,7 @@ def normalise(X):
     """
     return zscore(X)
 
-def dropout_channels(X, threshold = 0.05):
+def dropout_channels(X, threshold: float = 0.05):
     from scipy.special import ndtr
     """
     Identifies channels with a low signal-to-noise ratio (snr)
@@ -36,7 +36,7 @@ def dropout_channels(X, threshold = 0.05):
     standard_dev = np.std(ratios)
 
     # Function to measure of value is above p = threshold
-    def approved(x):
+    def approved(x) -> bool:
         zscore = (point_estimate - x)/standard_dev
         if ndtr(zscore) >= threshold: return True
         return False
@@ -45,7 +45,7 @@ def dropout_channels(X, threshold = 0.05):
 
     return X[:, valid_channels, :]
 
-def cut_samples(X, tmin, after=False):
+def cut_samples(X, tmin: int, after: bool = False):
     """
     Removes samples before a given point,
     such as before stimuli.
@@ -60,7 +60,7 @@ def cut_samples(X, tmin, after=False):
 
     return X[:, :, discarded_left:discarded_right].copy()
 
-def butter_lowpass_filter(data, nyquist, cutoff, order=6):
+def butter_lowpass_filter(data, nyquist: int, cutoff: float, order: int = 6) -> np.array:
     """
     Creates a Butter windowed lowpass filter.
     """
@@ -68,7 +68,7 @@ def butter_lowpass_filter(data, nyquist, cutoff, order=6):
     b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
     return signal.lfilter(b, a, data)
 
-def apply_lowpass(X, nyquist, cutoff = 5, decimation = 8):
+def apply_lowpass(X, nyquist: int, cutoff: float = 5, decimation: int = 8):
     """
     Applies a low pass filter to data X given the input
     signals nyquist values and optional cutoff and

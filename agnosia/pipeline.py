@@ -1,3 +1,5 @@
+from types import FunctionType
+
 class Pipeline(object):
     """
     Extremely simplified pipeline class for
@@ -6,15 +8,15 @@ class Pipeline(object):
     """
 
     def __init__(self):
-        self.functions = []
+        self.functions = {}
 
-    def add(self, function, arguments=()):
+    def add(self, function: FunctionType, arguments: list = []):
         """
         Adds a function to the pipeline.
         The function's auxillary arguments
-        must be passed as a list or tuple of values.
+        must be passed as a list of values.
         """
-        self.functions[function] = arguments
+        self.functions[function] = tuple(arguments)
 
     def run(self, data):
         """

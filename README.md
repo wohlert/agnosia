@@ -6,6 +6,10 @@ as "decoding". The module further contains functionality to classify potential
 outliers in the data, such as subjects suffering from visual agnosia or
 prosopagnosia.
 
+## Usage
+
+Run `python setup.py install` to install the module.
+
 ## Requirements
 
 See `requirements.txt`.

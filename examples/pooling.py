@@ -26,7 +26,7 @@ onset = int(abs(sfreq*tmin))
 
 # Create pipeline
 pipeline = Pipeline()
-pipeline.add(cut_samples, (onset))
+pipeline.add(cut_samples, [onset]))
 pipeline.add(pool)
 
 # Run pipeline

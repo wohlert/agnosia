@@ -7,6 +7,8 @@ here = path.abspath(path.dirname(__file__))
 with open('requirements.txt') as f:
     required = f.read().splitlines()
 
+print(required)
+
 setup(
     name='agnosia',
 

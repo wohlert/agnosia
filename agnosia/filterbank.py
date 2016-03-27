@@ -2,7 +2,7 @@ from numpy.fft import rfft
 import numpy as np
 from scipy.stats.mstats import zscore
 
-def fft(trial, limit):
+def fft(trial, limit: int):
     # Take the real fft of the trial
     transform = np.abs(rfft(trial, axis=1))
 
@@ -12,7 +12,7 @@ def fft(trial, limit):
     # Log10 of all values to scale
     return np.log10((transform))
 
-def upper_right_triangle(matrix):
+def upper_right_triangle(matrix) -> np.array:
     """
     Returns the upper right triangle of a m x m matrix.
     """
@@ -26,7 +26,7 @@ def upper_right_triangle(matrix):
             if j == m-1: limit += 1
     return np.array(out)
 
-def filter_bank(trial, nyquist):
+def filter_bank(trial, nyquist: int):
     """
     Creates a filterbank with different bandpasses
     to separate the data. Then builds features

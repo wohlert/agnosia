@@ -20,7 +20,7 @@ onset = int(abs(sfreq*tmin))
 
 # Create pipeline
 pipeline = Pipeline()
-pipeline.add(cut_samples, (onset))
+pipeline.add(cut_samples, [onset])
 pipeline.add(normalise)
 pipeline.add(dropout_channels)
 

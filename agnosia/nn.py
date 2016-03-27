@@ -1,7 +1,7 @@
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation
 
-def create_rnn(input_length):
+def create_rnn(input_length: int) -> Sequential:
     from keras.layers import LSTM
     """
     Uses a deep neural network with LSTM activation
@@ -22,7 +22,7 @@ def create_rnn(input_length):
 
     return model
 
-def create_cnn(channels, samples):
+def create_cnn(channels: int, samples: int) -> Sequential:
     from keras.layers.convolution import Convolution1D, MaxPooling1D
     from keras.layers.advanced_activations import PReLU
     """
