@@ -10,14 +10,14 @@ This particular solution will yield an accuracy of
 """
 import numpy as np
 from sklean import svm
+np.random.seed(8829)
 
-import ..io
-from ..preprocessing import cut_samples
-from ..features import pool
+import agnosia.io as io
+from agnosia.preprocessing import cut_samples
+from agnosia.features import pool
+from agnosia.pipeline import Pipeline
 
-from ..pipeline import Pipeline
-
-folder = "../../MEG"
+folder = "../data"
 
 # Load data and metadata
 X_train, X_test, y_train, y_test = io.load_subjects(folder, False)

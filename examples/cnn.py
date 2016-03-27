@@ -4,14 +4,14 @@
 Uses a convolutional neural network to classify examples.
 """
 import numpy as np
+np.random.seed(8829)
 
-import ..io
-import ..nn
-from ..preprocessing import cut_samples, normalise, dropout_channels
+import agnosia.io as io
+import agnosia.nn as nn
+from agnosia.preprocessing import cut_samples, normalise, dropout_channels
+from agnosia.pipeline import Pipeline
 
-from ..pipeline import Pipeline
-
-folder = "../../MEG"
+folder = "../data"
 
 # Load data and metadata
 X_train, X_test, y_train, y_test = io.load_subjects(folder, False)
