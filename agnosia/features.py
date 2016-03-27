@@ -1,12 +1,18 @@
+"""
+features
+
+Provides functions for feature extraction and selection.
+"""
+
 import numpy as np
 
-def pool(X):
+def pool(input_matrix):
     """
     Creates features from pooling all the data
     in a specific interval across channels.
     """
-    m, n, o = X.shape
-    X_pool = X.reshape(m, n * o)
-    X_pool -= X_pool.mean(axis = 0)
-    X_pool = np.nan_to_num(X_pool / X_pool.std(axis = 0))
-    return X_pool
+    trials, channels, samples = input_matrix.shape
+    pooled = input_matrix.reshape(trials, channels * samples)
+    pooled -= pooled.mean(axis=0)
+    pooled = np.nan_to_num(pooled / pooled.std(axis=0))
+    return pooled

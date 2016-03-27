@@ -1,5 +1,13 @@
+"""
+io
+
+Provides input and output operations for loading
+MEG data and creating submissions.
+"""
+
 import numpy as np
 from scipy.io import loadmat
+
 
 def get_files(folder: str):
     """
@@ -9,16 +17,18 @@ def get_files(folder: str):
     import os
 
     train_path = "{}/train/".format(folder)
-    train_files = list(filter(lambda f: f.endswith(".mat"), os.listdir(train_path)))
-    train_files = ["{}{}".format(train_path, i) for i in train_files]
+    train_files = ["{}{}".format(train_path, f) \
+        for f in os.listdir(train_path) \
+        if f.endswith(".mat")]
 
     test_path = "{}/test/".format(folder)
-    test_files = list(filter(lambda f: f.endswith(".mat"), os.listdir(test_path)))
-    test_files = ["{}{}".format(test_path, i) for i in test_files]
+    test_files = ["{}{}".format(test_path, f) \
+        for f in os.listdir(test_path) \
+        if f.endswith(".mat")]
 
     return train_files, test_files
 
-def load_subjects(folder: str, no_of_subjects: int = 0):
+def load_subjects(folder: str, no_of_subjects: int=0):
     """
     Loads a number of subjects and splits the data accordingly.
     """
@@ -28,24 +38,24 @@ def load_subjects(folder: str, no_of_subjects: int = 0):
 
     # No subjects chosen, do true split
     if not no_of_subjects:
-        train_subjects = [loadmat(x) for x in train_files]
-        test_subjects = [loadmat(x) for x in test_files]
+        train_subjects = [loadmat(p) for p in train_files]
+        test_subjects = [loadmat(p) for p in test_files]
 
-        X_train = np.vstack([subject['X'] for subject in train_subjects])
+        x_train = np.vstack([subject['X'] for subject in train_subjects])
         y_train = np.vstack([subject['y'] for subject in train_subjects])
 
-        X_test = np.vstack([subject['X'] for subject in test_subjects])
+        x_test = np.vstack([subject['X'] for subject in test_subjects])
         y_test = np.vstack([subject['Id'] for subject in test_subjects])
 
     # Do a split for cross validation
     else:
-        train_subjects = [loadmat(x) for x in train_files[:no_of_subjects]]
-        X = np.vstack([subject['X'] for subject in train_subjects])
-        y = np.vstack([subject['y'] for subject in train_subjects])
+        train_subjects = [loadmat(p) for p in train_files[:no_of_subjects]]
+        x_full = np.vstack([subject['X'] for subject in train_subjects])
+        y_full = np.vstack([subject['y'] for subject in train_subjects])
 
-        X_train, X_test, y_train, y_test = train_test_split(X, y)
+        x_train, x_test, y_train, y_test = train_test_split(x_full, y_full)
 
-    return X_train, X_test, y_train, y_test
+    return x_train, x_test, y_train, y_test
 
 def load_meta(folder: str):
     """
@@ -68,8 +78,8 @@ def create_submission(ids, labels, filename: str):
 
     assert len(ids) == len(labels)
 
-    df = pd.DataFrame(ids.ravel(), index=ids.ravel())
-    df['Prediction'] = labels
-    del df[0]
+    dataframe = pd.DataFrame(ids.ravel(), index=ids.ravel())
+    dataframe['Prediction'] = labels
+    del dataframe[0]
 
-    df.to_csv(filename, cols=["Id", "Prediction"])
+    dataframe.to_csv(filename, cols=["Id", "Prediction"])

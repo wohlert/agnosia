@@ -1,5 +1,5 @@
 """
-# Pooling
+pooling
 
 This is an example pipeline demonstrating the creation
 of a classifier based on trial-wise pooling along
@@ -9,13 +9,13 @@ This particular solution will yield an accuracy of
 0.69 on the competition.
 """
 import numpy as np
-from sklean import svm
-np.random.seed(8829)
-
+from sklearn import svm
 import agnosia.io as io
 from agnosia.preprocessing import cut_samples
 from agnosia.features import pool
 from agnosia.pipeline import Pipeline
+
+np.random.seed(8829)
 
 folder = "../data"
 
@@ -26,7 +26,7 @@ onset = int(abs(sfreq*tmin))
 
 # Create pipeline
 pipeline = Pipeline()
-pipeline.add(cut_samples, [onset]))
+pipeline.add(cut_samples, [onset])
 pipeline.add(pool)
 
 # Run pipeline

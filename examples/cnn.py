@@ -1,15 +1,15 @@
 """
-# CNN
+cnn
 
 Uses a convolutional neural network to classify examples.
 """
 import numpy as np
-np.random.seed(8829)
-
 import agnosia.io as io
 import agnosia.nn as nn
 from agnosia.preprocessing import cut_samples, normalise, dropout_channels
 from agnosia.pipeline import Pipeline
+
+np.random.seed(8829)
 
 folder = "../data"
 
@@ -38,7 +38,7 @@ model.fit(X_train, y_train, batch_size=batch_size,
           nb_epoch=nb_epoch, show_accuracy=True)
 
 # Create submission
-prediction = model.predict_classes(X_test, batch_size=batch_size,
+prediction = model.predict_classes(X_test, batch_size=batch_size, \
                                    show_accuracy=True, verbose=1)
 
 io.create_submission(y_test, prediction, "submission_cnn.csv")

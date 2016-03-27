@@ -1,4 +1,11 @@
+"""
+pipeline
+
+Provides the Pipeline class for chaining actions.
+"""
+
 from types import FunctionType
+
 
 class Pipeline(object):
     """
@@ -10,7 +17,7 @@ class Pipeline(object):
     def __init__(self):
         self.functions = {}
 
-    def add(self, function: FunctionType, arguments: list = []):
+    def add(self, function: FunctionType, arguments: list=[]):
         """
         Adds a function to the pipeline.
         The function's auxillary arguments
@@ -22,7 +29,7 @@ class Pipeline(object):
         """
         Apply all functions in order to the input data.
         """
-        for f, args in self.functions.items():
-            data = f(data, *args)
+        for function, args in self.functions.items():
+            data = function(data, *args)
 
         return data

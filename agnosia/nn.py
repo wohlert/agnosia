@@ -1,8 +1,13 @@
-from keras.models import Sequential
-from keras.layers.core import Dense, Dropout, Activation
+"""
+nn
 
-def create_rnn(input_length: int) -> Sequential:
-    from keras.layers import LSTM
+Neural network implementations with standard hyperparameters
+"""
+
+from keras.models import Sequential
+from keras.layers.core import Dense, Dropout, Activation, Flatten
+
+def create_rnn(input_length: int):
     """
     Uses a deep neural network with LSTM activation
     to classify the data.
@@ -12,8 +17,10 @@ def create_rnn(input_length: int) -> Sequential:
         * X
 
     """
+    from keras.layers import LSTM
+
     model = Sequential()
-    model.add(LSTM(output_dim=128, activation='sigmoid', inner_activation='hard_sigmoid'))
+    model.add(LSTM(output_dim=input_length, activation='sigmoid', inner_activation='hard_sigmoid'))
     model.add(Dropout(0.5))
     model.add(Dense(1))
     model.add(Activation('sigmoid'))
@@ -23,8 +30,6 @@ def create_rnn(input_length: int) -> Sequential:
     return model
 
 def create_cnn(channels: int, samples: int) -> Sequential:
-    from keras.layers.convolution import Convolution1D, MaxPooling1D
-    from keras.layers.advanced_activations import PReLU
     """
     Creates a convolutional neural network to classify data.
 
@@ -45,8 +50,16 @@ def create_cnn(channels: int, samples: int) -> Sequential:
         * Fully connected [output]
 
     """
+    from keras.layers.convolution import Convolution1D, MaxPooling1D
+    from keras.layers.advanced_activations import PReLU
+
+    nb_filter = 64
+    filter_length = 3
+    pool_length = 2
+
     model = Sequential()
-    model.add(Convolution1D(nb_filter, filter_length, border_mode='valid', input_shape=(channels, samples)))
+    model.add(Convolution1D(nb_filter, filter_length, border_mode='valid', \
+                            input_shape=(channels, samples)))
     model.add(PReLU())
 
     model.add(Convolution1D(nb_filter, filter_length, border_mode='valid'))
