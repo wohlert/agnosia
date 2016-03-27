@@ -1,6 +1,5 @@
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation
-from keras.layers.advanced_activations import PReLU
 
 def create_rnn(input_length):
     from keras.layers import LSTM
@@ -25,6 +24,7 @@ def create_rnn(input_length):
 
 def create_cnn(channels, samples):
     from keras.layers.convolution import Convolution1D, MaxPooling1D
+    from keras.layers.advanced_activations import PReLU
     """
     Creates a convolutional neural network to classify data.
 
@@ -38,11 +38,10 @@ def create_cnn(channels, samples):
         * Dropout
         * Convolution
         * PReLu
-        * Convolution
-        * PReLU
         * Maxpooling
-        * Dropout
         * Flatten
+        * Fully connected
+        * Dropout
         * Fully connected [output]
 
     """
@@ -52,18 +51,19 @@ def create_cnn(channels, samples):
 
     model.add(Convolution1D(nb_filter, filter_length, border_mode='valid'))
     model.add(PReLU())
+
     model.add(MaxPooling1D(pool_length=pool_length))
     model.add(Dropout(0.5))
 
     model.add(Convolution1D(nb_filter, filter_length, border_mode='valid'))
     model.add(PReLU())
 
-    model.add(Convolution1D(nb_filter, filter_length, border_mode='valid'))
-    model.add(PReLU())
     model.add(MaxPooling1D(pool_length=pool_length))
-    model.add(Dropout(0.5))
 
     model.add(Flatten())
+    model.add(Dense(nb_filter))
+    model.add(Dropout(0.5))
+
     model.add(Dense(1))
     model.add(Activation("sigmoid"))
 
