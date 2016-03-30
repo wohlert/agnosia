@@ -59,14 +59,14 @@ def load_subjects(folder: str, no_of_subjects: int=0):
 
 def load_meta(folder: str):
     """
-    Loads the meta data for a .mat files in a folder.
+    Loads the meta data for a signle .mat files.
     """
     train_files, _ = get_files(folder)
     subject = loadmat(train_files[0])
 
-    sfreq = int(subject['sfreq'])
-    tmin = int(subject['tmin'])
-    tmax = int(subject['tmax'])
+    sfreq = float(subject['sfreq'])
+    tmin = float(subject['tmin'])
+    tmax = float(subject['tmax'])
 
     return sfreq, tmin, tmax
 
