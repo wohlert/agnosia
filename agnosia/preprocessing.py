@@ -57,7 +57,7 @@ def dropout_channels(input_matrix, threshold: float=0.05):
 
     return input_matrix[:, valid_channels, :]
 
-def cut_samples(input_matrix, tmin: int, after: bool=False):
+def cut_samples(input_matrix, start: int, end: int=None):
     """
     Removes samples before a given point,
     such as before stimuli.
@@ -65,13 +65,7 @@ def cut_samples(input_matrix, tmin: int, after: bool=False):
     """
     _, _, samples = input_matrix.shape
 
-    discarded_left = tmin
-    discarded_right = None
-
-    if after:
-        discarded_right = samples - discarded_left
-
-    return input_matrix[:, :, discarded_left:discarded_right].copy()
+    return input_matrix[:, :, start:end].copy()
 
 def butter_lowpass_filter(data, nyquist: int, cutoff: float, order: int=6) -> np.array:
     """
