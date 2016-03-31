@@ -35,8 +35,8 @@ X_test = pipeline.run(X_test)
 
 # Create classifier
 model = svm.SVC()
-model.fit(X_train)
+model.fit(X_train, y_train.ravel())
 
 # Create submission
 prediction = model.predict(X_test)
-io.create_submission(y_test, prediction, "submission_pooling.csv")
+io.create_submission(y_test.ravel(), prediction, "submission_pooling.csv")

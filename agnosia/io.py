@@ -78,7 +78,7 @@ def create_submission(ids, labels, filename: str):
 
     assert len(ids) == len(labels)
 
-    dataframe = pd.DataFrame(ids.ravel(), index=ids.ravel())
+    dataframe = pd.DataFrame(ids, index=ids)
     dataframe['Prediction'] = labels
     del dataframe[0]
 

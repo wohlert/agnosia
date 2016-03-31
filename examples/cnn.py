@@ -34,11 +34,11 @@ model = nn.create_cnn(channels, samples)
 
 batch_size = 16
 nb_epoch = 10
-model.fit(X_train, y_train, batch_size=batch_size,
+model.fit(X_train, y_train.ravel(), batch_size=batch_size,
           nb_epoch=nb_epoch, show_accuracy=True)
 
 # Create submission
 prediction = model.predict_classes(X_test, batch_size=batch_size, \
                                    show_accuracy=True, verbose=1)
 
-io.create_submission(y_test, prediction, "submission_cnn.csv")
+io.create_submission(y_test.ravel(), prediction, "submission_cnn.csv")

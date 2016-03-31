@@ -65,6 +65,9 @@ def cut_samples(input_matrix, start: int, end: int=None):
     """
     _, _, samples = input_matrix.shape
 
+    assert start < samples
+    assert end < samples
+
     return input_matrix[:, :, start:end].copy()
 
 def butter_lowpass_filter(data, nyquist: int, cutoff: float, order: int=6) -> np.array:
