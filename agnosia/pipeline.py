@@ -5,6 +5,7 @@ Provides the Pipeline class for chaining actions.
 """
 
 from types import FunctionType
+from collections import OrderedDict
 
 
 class Pipeline(object):
@@ -14,8 +15,8 @@ class Pipeline(object):
     such as training and test data.
     """
 
-    def __init__(self):
-        self.functions = {}
+    def __init__(self, functions={}):
+        self.functions = OrderedDict(functions)
 
     def add(self, function: FunctionType, arguments: list=[]):
         """

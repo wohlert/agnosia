@@ -7,17 +7,29 @@ Provides routines for preprocessing of data.
 import numpy as np
 import scipy.signal as signal
 
-
-def normalise(input_matrix):
+def normalise(input_matrix: np.array) -> np.array:
     """
     Normalises the data for input in certain classifiers.
     Necessary for NN input.
     """
     from scipy.stats import zscore
 
-    return zscore(input_matrix)
+    return zscore(input_matrix, axis=1)
 
-def dropout_channels(input_matrix, threshold: float=0.05):
+def dropout_channels_tanh(input_matrix: np.array) -> np.array:
+    """
+    Finds channels to dropout based on the hyperbolic tangent
+    along with the standard deviation of these tangents.
+
+    ! input must be normalised.
+    """
+    tangents = np.tanh(input_matrix)
+    cross_sample = np.std(tangents, axis=0)
+    cross_trial = np.mean(cross_sample, axis=1)
+
+    return cross_trial > 0.4
+
+def dropout_channels_norm(input_matrix: np.array, threshold: float=0.05) -> np.array:
     """
     Identifies channels with a low signal-to-noise ratio (snr)
     and returns a list of the channels with quality higher than
@@ -55,9 +67,9 @@ def dropout_channels(input_matrix, threshold: float=0.05):
 
     valid_channels = [k for k, v in snr_channels.items() if approved(v)]
 
-    return input_matrix[:, valid_channels, :]
+    return np.array(valid_channels)
 
-def cut_samples(input_matrix, start: int, end: int=None):
+def cut_samples(input_matrix: np.array, start: int, end: int=None) -> np.array:
     """
     Removes samples before a given point,
     such as before stimuli.
@@ -70,27 +82,29 @@ def cut_samples(input_matrix, start: int, end: int=None):
 
     return input_matrix[:, :, start:end].copy()
 
-def butter_lowpass_filter(data, nyquist: int, cutoff: float, order: int=6) -> np.array:
+def cut_m170(input_matrix: np.array, tmin: float, sfreq: int, window_size: float=5.0) -> np.array:
+    """
+    Cuts the samples around M170.
+    window_size is the number of ms before and after m170
+    """
+    window = window_size*0.01
+
+    print(window)
+
+    impulse = abs(tmin)
+    prime = impulse + 0.170
+    nmin = prime - window
+    nmax = prime + window
+
+    area = range(int(nmin*sfreq), int(nmax*sfreq))
+
+    return input_matrix[:, :, area].copy()
+
+
+def butter_lowpass_filter(data, nyquist: int, cutoff: float=5, order: int=6) -> np.array:
     """
     Creates a Butter windowed lowpass filter.
     """
     normal_cutoff = cutoff / nyquist
     b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
     return signal.lfilter(b, a, data)
-
-def apply_lowpass(x, nyquist: int, cutoff: float=5, decimation: int=8):
-    """
-    Applies a low pass filter to data X given the input
-    signals nyquist values and optional cutoff and
-    decimation factor.
-    """
-    trials = len(x)
-    total = []
-
-    for i in range(trials):
-        lowpass = butter_lowpass_filter(x[i], nyquist, cutoff)
-        lowpass = np.mean(lowpass, axis=0)
-        lowpass = signal.decimate(lowpass, decimation, ftype="fir")
-        total.append(lowpass)
-
-    return np.vstack(total), len(lowpass)

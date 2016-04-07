@@ -8,10 +8,11 @@ with a support vector machine classifier on the data.
 This particular solution will yield an accuracy of
 0.69 on the competition.
 """
+
+
 import numpy as np
-from sklearn import svm
 import agnosia.io as io
-from agnosia.preprocessing import cut_samples
+import agnosia.preprocessing as pre
 from agnosia.features import pool
 from agnosia.pipeline import Pipeline
 
@@ -26,7 +27,7 @@ onset = int(abs(sfreq*tmin))
 
 # Create pipeline
 pipeline = Pipeline()
-pipeline.add(cut_samples, [onset])
+pipeline.add(pre.cut_samples, [onset])
 pipeline.add(pool)
 
 # Run pipeline
@@ -34,7 +35,8 @@ X_train = pipeline.run(X_train)
 X_test = pipeline.run(X_test)
 
 # Create classifier
-model = svm.SVC()
+from sklearn.svm import SVC
+model = SVC()
 model.fit(X_train, y_train.ravel())
 
 # Create submission

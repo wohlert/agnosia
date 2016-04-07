@@ -37,6 +37,6 @@ Simple pooling over all channels for the direct time after stimulus.
 
 Convolutional neural network with LSTM
 
-### N170
+### M170
 
 Filterbanking for the gamma band.

@@ -50,8 +50,9 @@ def create_cnn(channels: int, samples: int) -> Sequential:
         * Fully connected [output]
 
     """
-    from keras.layers.convolution import Convolution1D, MaxPooling1D
+    from keras.layers.convolutional import Convolution1D, MaxPooling1D
     from keras.layers.advanced_activations import PReLU
+    from keras.layers.normalization import BatchNormalization
 
     nb_filter = 64
     filter_length = 3
@@ -63,12 +64,14 @@ def create_cnn(channels: int, samples: int) -> Sequential:
     model.add(PReLU())
 
     model.add(Convolution1D(nb_filter, filter_length, border_mode='valid'))
+    model.add(BatchNormalization())
     model.add(PReLU())
 
     model.add(MaxPooling1D(pool_length=pool_length))
-    model.add(Dropout(0.5))
+    model.add(Dropout(0.25))
 
     model.add(Convolution1D(nb_filter, filter_length, border_mode='valid'))
+    model.add(BatchNormalization())
     model.add(PReLU())
 
     model.add(MaxPooling1D(pool_length=pool_length))

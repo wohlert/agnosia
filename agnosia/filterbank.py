@@ -35,7 +35,7 @@ def upper_right_triangle(matrix) -> np.array:
 
     return np.array(acc)
 
-def full_filter_bank(input_matrix, bands:list=None):
+def filter_bank(input_matrix, bands:list=None, correlate=False):
     """
     Creates a filterbank with different bandpasses
     to separate the data. Then builds features
@@ -57,10 +57,13 @@ def full_filter_bank(input_matrix, bands:list=None):
     low = max(np.min(bands), 1)
     high = min(np.max(bands), 128)
 
-    def normal_transform(trial):
+    def normalised_fft(trial):
         transform = fft(trial, lower_limit=low, upper_limit=high)
         normalised = np.hstack([zscore(transform[:, band[0]:band[1]]) for band in bands])
-        # Correlation coefficient matrix
+        return normalised
+
+    def correlated_fft(trial):
+        normalised = normalised_fft(trial)
         corr = np.corrcoef(normalised)
 
         # Eigenvalues
@@ -70,4 +73,11 @@ def full_filter_bank(input_matrix, bands:list=None):
         coeff = upper_right_triangle(corr)
         return np.concatenate((coeff, eigenvalues))
 
-    return np.vstack([normal_transform(trial) for trial in input_matrix])
+    if correlate:
+        postprocess = correlated_fft
+    else:
+        postprocess = normalised_fft
+
+    transforms = np.dstack([postprocess(trial) for trial in input_matrix])
+    m, n, o = transforms.shape
+    return transforms.reshape(o, m * n)

@@ -4,9 +4,10 @@ cnn
 Uses a convolutional neural network to classify examples.
 """
 import numpy as np
+
 import agnosia.io as io
 import agnosia.nn as nn
-from agnosia.preprocessing import cut_samples, normalise, dropout_channels
+import agnosia.preprocessing as pre
 from agnosia.pipeline import Pipeline
 
 np.random.seed(8829)
@@ -20,9 +21,8 @@ onset = int(abs(sfreq*tmin))
 
 # Create pipeline
 pipeline = Pipeline()
-pipeline.add(cut_samples, [onset])
-pipeline.add(normalise)
-pipeline.add(dropout_channels)
+pipeline.add(pre.normalise)
+pipeline.add(pre.cut_samples, [onset])
 
 # Run pipeline
 X_train = pipeline.run(X_train)
