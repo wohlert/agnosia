@@ -7,10 +7,9 @@ classify samples.
 """
 import numpy as np
 
-import agnosia.io as io
-import agnosia.preprocessing as pre
-from agnosia.appliers import apply_dropout
-from agnosia.pipeline import Pipeline
+import atone.io as io
+import atone.preprocessing as pre
+from atone.pipeline import Pipeline
 
 seed = np.random.seed(8829)
 
@@ -29,7 +28,6 @@ channels = channel_pipe.run(X_train)
 # Create pipeline
 pipeline = Pipeline()
 pipeline.add(pre.normalise)
-#pipeline.add(apply_dropout, [channels])
 pipeline.add(pre.cut_m170, [sfreq, tmin, 5])
 pipeline.add(np.trapz)
 

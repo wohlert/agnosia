@@ -79,7 +79,7 @@ def create_submission(ids, labels, filename: str):
     """
     import pandas as pd
 
-    assert len(ids) == len(labels)
+    assert len(ids) == len(labels), "Length of y-labels must be the same as for Ids"
 
     dataframe = pd.DataFrame(ids, index=ids)
     dataframe['Prediction'] = labels

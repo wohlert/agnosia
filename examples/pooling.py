@@ -11,10 +11,10 @@ This particular solution will yield an accuracy of
 
 
 import numpy as np
-import agnosia.io as io
-import agnosia.preprocessing as pre
-from agnosia.features import pool
-from agnosia.pipeline import Pipeline
+import atone.io as io
+from atone.preprocessing import normalise, cut_samples
+from atone.features import pool
+from atone.pipeline import Pipeline
 
 np.random.seed(8829)
 
@@ -27,7 +27,8 @@ onset = int(abs(sfreq*tmin))
 
 # Create pipeline
 pipeline = Pipeline()
-pipeline.add(pre.cut_samples, [onset])
+pipeline.add(normalise)
+pipeline.add(cut_samples, [onset])
 pipeline.add(pool)
 
 # Run pipeline

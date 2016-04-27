@@ -8,7 +8,7 @@ with open('requirements.txt') as f:
     required = f.read().splitlines()
 
 setup(
-    name='agnosia',
+    name='atone',
 
     author='Jesper Wohlert',
 
@@ -19,7 +19,7 @@ setup(
 
     description='Machine learning classifier for MEG data for prosopagnosia',
 
-    url='https://github.com/wohlert/agnosia',
+    url='https://github.com/wohlert/atone',
 
     license='MIT',
 
@@ -31,7 +31,7 @@ setup(
         'Programming Language :: Python :: 3.5'
     ],
 
-    packages=['agnosia'],
+    packages=['atone'],
 
     # List run-time dependencies here.  These will be installed by pip when your
     # project is installed. For an analysis of "install_requires" vs pip's

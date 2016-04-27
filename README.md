@@ -1,4 +1,4 @@
-# agnosia
+# Atone
 
 This is a python module for the Kaggle DECMEG competition and sorrounding
 problem statement of capturing visual stimuli from brain EEG/MEG, also known
@@ -16,7 +16,7 @@ easily be installed by running `python3 install -requirements requirements.txt`.
 
 Run `python3 setup.py install` to install the module.
 
-The agnosia package should now be accessible systemwide for the version of
+The atone package should now be accessible systemwide for the version of
 python you installed it for.
 
 To run the example pipelines provided by the module you can do the following:
@@ -33,10 +33,6 @@ The signal classification systems included are as follows.
 
 Simple pooling over all channels for the direct time after stimulus.
 
-### CNN
-
-Convolutional neural network with LSTM
-
-### M170
+### N170
 
 Filterbanking for the gamma band.

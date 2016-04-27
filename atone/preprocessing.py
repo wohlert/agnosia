@@ -9,9 +9,9 @@ import numpy as np
 
 def scale(input_matrix: np.array) -> np.array:
     """
-    Scale the unit of measure from femtotesla to millitesla.
+    Scale the unit of measure from femtotesla to tesla.
     """
-    return input_matrix * 1e10
+    return input_matrix * 1e12
 
 
 def normalise(input_matrix: np.array) -> np.array:
@@ -27,6 +27,7 @@ def smooth(input_matrix: np.array, window: int=17, order: int=2) -> np.array:
     """
     Apply Savitzky-Golay filtering to smooth the signal.
     """
+    assert window % 2 == 1, "Window size must be odd"
     from scipy.signal import savgol_filter
     return savgol_filter(input_matrix, window, order)
 
@@ -52,7 +53,7 @@ def dropout_channels_monte_carlo(input_matrix: np.array, output_labels: np.array
 
     def monte_carlo_channel(channel):
         from sklearn.cross_validation import ShuffleSplit, cross_val_score
-        from agnosia.features import pool
+        from .features import pool
 
         cross_validation = ShuffleSplit(trials, n_iter=5, test_size=0.2)
         input_pooled = pool(input_matrix[:, [channel]])
