@@ -17,8 +17,8 @@ def apply_ica(input_matrix: np.array, components=None) -> np.array:
     ica = FastICA(n_components=components)
 
     def ica_transform(trial: np.array) -> np.array:
-        channels, samples = np.shape(trial)
-        trial = np.reshape(trial, (samples, channels))
+        trial_channels, trial_samples = np.shape(trial)
+        trial = np.reshape(trial, (trial_samples, trial_channels))
         transform = ica.fit_transform(trial)
         return transform
 

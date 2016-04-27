@@ -5,7 +5,6 @@ Provides routines for preprocessing of data.
 """
 
 import numpy as np
-import scipy.signal as signal
 
 
 def scale(input_matrix: np.array) -> np.array:
@@ -37,6 +36,7 @@ Dropout routines for finding significant channels.
 The channels will be along the second axis of the input matrix.
 Channels can be dropped out by using an applier.
 """
+
 
 def dropout_channels_monte_carlo(input_matrix: np.array, output_labels: np.array) -> np.array:
     """

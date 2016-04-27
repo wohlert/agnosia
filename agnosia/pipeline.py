@@ -15,15 +15,21 @@ class Pipeline(object):
     such as training and test data.
     """
 
-    def __init__(self, functions={}):
+    def __init__(self, functions: dict=None):
+        if functions is None:
+            functions = {}
+
         self.functions = OrderedDict(functions)
 
-    def add(self, function: FunctionType, arguments: list=[]):
+    def add(self, function: FunctionType, arguments: list=None):
         """
         Adds a function to the pipeline.
         The function's auxillary arguments
         must be passed as a list of values.
         """
+        if arguments is None:
+            arguments = []
+
         self.functions[function] = tuple(arguments)
 
     def run(self, data):

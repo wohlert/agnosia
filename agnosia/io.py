@@ -18,13 +18,13 @@ def get_files(folder: str):
 
     train_path = "{}/train/".format(folder)
     train_files = ["{}{}".format(train_path, f)
-        for f in os.listdir(train_path)
-        if f.endswith(".mat")]
+                   for f in os.listdir(train_path)
+                   if f.endswith(".mat")]
 
     test_path = "{}/test/".format(folder)
     test_files = ["{}{}".format(test_path, f)
-        for f in os.listdir(test_path)
-        if f.endswith(".mat")]
+                  for f in os.listdir(test_path)
+                  if f.endswith(".mat")]
 
     return train_files, test_files
 
