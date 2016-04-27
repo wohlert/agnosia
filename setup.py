@@ -7,15 +7,17 @@ here = path.abspath(path.dirname(__file__))
 with open('requirements.txt') as f:
     required = f.read().splitlines()
 
-print(required)
-
 setup(
     name='agnosia',
+
+    author='Jesper Wohlert',
+
+    author_email='jesper@wohlert.nu',
 
     # useful: python setup.py sdist bdist_wheel upload
     version='0.0.1',
 
-    description='',
+    description='Machine learning classifier for MEG data for prosopagnosia',
 
     url='https://github.com/wohlert/agnosia',
 

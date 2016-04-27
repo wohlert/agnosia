@@ -17,16 +17,17 @@ def get_files(folder: str):
     import os
 
     train_path = "{}/train/".format(folder)
-    train_files = ["{}{}".format(train_path, f) \
-        for f in os.listdir(train_path) \
+    train_files = ["{}{}".format(train_path, f)
+        for f in os.listdir(train_path)
         if f.endswith(".mat")]
 
     test_path = "{}/test/".format(folder)
-    test_files = ["{}{}".format(test_path, f) \
-        for f in os.listdir(test_path) \
+    test_files = ["{}{}".format(test_path, f)
+        for f in os.listdir(test_path)
         if f.endswith(".mat")]
 
     return train_files, test_files
+
 
 def load_subjects(folder: str, no_of_subjects: int=0):
     """
@@ -57,6 +58,7 @@ def load_subjects(folder: str, no_of_subjects: int=0):
 
     return x_train, x_test, y_train, y_test
 
+
 def load_meta(folder: str):
     """
     Loads the meta data for a signle .mat files.
@@ -69,6 +71,7 @@ def load_meta(folder: str):
     tmax = float(subject['tmax'])
 
     return sfreq, tmin, tmax
+
 
 def create_submission(ids, labels, filename: str):
     """

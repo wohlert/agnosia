@@ -7,14 +7,64 @@ Provides routines for preprocessing of data.
 import numpy as np
 import scipy.signal as signal
 
+
+def scale(input_matrix: np.array) -> np.array:
+    """
+    Scale the unit of measure from femtotesla to millitesla.
+    """
+    return input_matrix * 1e10
+
+
 def normalise(input_matrix: np.array) -> np.array:
     """
     Normalises the data for input in certain classifiers.
-    Necessary for NN input.
     """
     from scipy.stats import zscore
 
     return zscore(input_matrix, axis=1)
+
+
+def smooth(input_matrix: np.array, window: int=17, order: int=2) -> np.array:
+    """
+    Apply Savitzky-Golay filtering to smooth the signal.
+    """
+    from scipy.signal import savgol_filter
+    return savgol_filter(input_matrix, window, order)
+
+
+"""
+Dropout routines for finding significant channels.
+The channels will be along the second axis of the input matrix.
+Channels can be dropped out by using an applier.
+"""
+
+def dropout_channels_monte_carlo(input_matrix: np.array, output_labels: np.array) -> np.array:
+    """
+    Perform 10 fold shuffle split on the data and
+    do cross validation to find channels with
+    highest correlation to the output variable.
+    """
+    from sklearn.svm import SVC
+
+    clf = SVC(C=1, kernel='linear')
+
+    trials, channels, samples = np.shape(input_matrix)
+
+    def monte_carlo_channel(channel):
+        from sklearn.cross_validation import ShuffleSplit, cross_val_score
+        from agnosia.features import pool
+
+        cross_validation = ShuffleSplit(trials, n_iter=5, test_size=0.2)
+        input_pooled = pool(input_matrix[:, [channel]])
+        scores = cross_val_score(clf, input_pooled, output_labels, cv=cross_validation)
+
+        return np.mean(scores)
+
+    channel_list = np.arange(channels)
+    accuracies = np.array([monte_carlo_channel(c) for c in channel_list])
+
+    return accuracies
+
 
 def dropout_channels_tanh(input_matrix: np.array) -> np.array:
     """
@@ -29,6 +79,7 @@ def dropout_channels_tanh(input_matrix: np.array) -> np.array:
 
     return cross_trial > 0.4
 
+
 def dropout_channels_norm(input_matrix: np.array, threshold: float=0.05) -> np.array:
     """
     Identifies channels with a low signal-to-noise ratio (snr)
@@ -37,7 +88,7 @@ def dropout_channels_norm(input_matrix: np.array, threshold: float=0.05) -> np.a
     """
     from scipy.special import ndtr
 
-    trials, channels, _ = input_matrix.shape
+    trials, channels, _ = np.shape(input_matrix)
     snr_channels = {}
 
     for trial in range(trials):
@@ -69,18 +120,23 @@ def dropout_channels_norm(input_matrix: np.array, threshold: float=0.05) -> np.a
 
     return np.array(valid_channels)
 
-def cut_samples(input_matrix: np.array, start: int, end: int=None) -> np.array:
+"""
+Applies cuts along the final axis of data (samples).
+"""
+
+
+def cut(input_matrix: np.array, start: int, end: int=None) -> np.array:
     """
     Removes samples before a given point,
     such as before stimuli.
     Can also trim from both sides.
     """
-    _, _, samples = input_matrix.shape
+    _, _, samples = np.shape(input_matrix)
 
     assert start < samples
-    assert end < samples
 
     return input_matrix[:, :, start:end].copy()
+
 
 def cut_m170(input_matrix: np.array, tmin: float, sfreq: int, window_size: float=5.0) -> np.array:
     """
@@ -88,8 +144,6 @@ def cut_m170(input_matrix: np.array, tmin: float, sfreq: int, window_size: float
     window_size is the number of ms before and after m170
     """
     window = window_size*0.01
-
-    print(window)
 
     impulse = abs(tmin)
     prime = impulse + 0.170
@@ -99,12 +153,3 @@ def cut_m170(input_matrix: np.array, tmin: float, sfreq: int, window_size: float
     area = range(int(nmin*sfreq), int(nmax*sfreq))
 
     return input_matrix[:, :, area].copy()
-
-
-def butter_lowpass_filter(data, nyquist: int, cutoff: float=5, order: int=6) -> np.array:
-    """
-    Creates a Butter windowed lowpass filter.
-    """
-    normal_cutoff = cutoff / nyquist
-    b, a = signal.butter(order, normal_cutoff, btype='low', analog=False)
-    return signal.lfilter(b, a, data)
