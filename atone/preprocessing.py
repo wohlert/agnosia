@@ -5,6 +5,7 @@ Provides routines for preprocessing of data.
 """
 
 import numpy as np
+from scipy.signal import savgol_filter, decimate
 
 
 def scale(input_matrix: np.array) -> np.array:
@@ -28,7 +29,6 @@ def smooth(input_matrix: np.array, window: int=17, order: int=2) -> np.array:
     Apply Savitzky-Golay filtering to smooth the signal.
     """
     assert window % 2 == 1, "Window size must be odd"
-    from scipy.signal import savgol_filter
     return savgol_filter(input_matrix, window, order)
 
 
@@ -142,7 +142,7 @@ def cut(input_matrix: np.array, start: int, end: int=None) -> np.array:
 def cut_m170(input_matrix: np.array, tmin: float, sfreq: int, window_size: float=5.0) -> np.array:
     """
     Cuts the samples around M170.
-    window_size is the number of ms before and after m170
+    window_size is the number of ms before and after n170.
     """
     window = window_size*0.01
 
@@ -154,3 +154,10 @@ def cut_m170(input_matrix: np.array, tmin: float, sfreq: int, window_size: float
     area = range(int(nmin*sfreq), int(nmax*sfreq))
 
     return input_matrix[:, :, area].copy()
+
+
+def downsample(input_matrix: np.array, factor: int=2):
+    """
+    Downsampels the signal by a given factor.
+    """
+    return decimate(input_matrix, factor, ftype="fir")

@@ -38,7 +38,7 @@ def load_subjects(folder: str, no_of_subjects: int=0):
     train_files, test_files = get_files(folder)
 
     # No subjects chosen, do true split
-    if not no_of_subjects:
+    if no_of_subjects < 1:
         train_subjects = [loadmat(p) for p in train_files]
         test_subjects = [loadmat(p) for p in test_files]
 

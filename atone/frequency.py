@@ -7,6 +7,7 @@ Provides the frequency based routines.
 import numpy as np
 from numpy.fft import rfft
 import scipy.signal as signal
+import pywt as wave
 
 
 def bandpass(input_matrix: np.array, fs: float, lowcut: float=0, highcut: float=None, order: int=5) -> np.array:
@@ -41,7 +42,19 @@ def fft(trial, lower_limit: int=None, upper_limit: int=None):
     return np.log10(transform)
 
 
-def filter_bank(input_matrix, bands: list=None) -> np.array:
+class Filterbank:
+    def __init__(self, bands: list=None):
+        if not bands:
+            self.__bands = [(0, 4), (4, 8), (8, 16), (16, 32), (32, 64), (64, 100)]
+
+    def bands(self):
+        return self.__bands
+
+    def apply(self, input_matrix: np.array) -> np.array:
+        return filter_bank(input_matrix, self.__bands)
+
+
+def filter_bank(input_matrix: np.array, bands: list=None) -> np.array:
     """
     Creates a filterbank with different bandpasses
     to separate the data. Then builds features
@@ -69,12 +82,54 @@ def filter_bank(input_matrix, bands: list=None) -> np.array:
         return bank
 
     transforms = np.dstack([single_bank(trial) for trial in input_matrix])
-    return transforms
+    channels, _, trials = np.shape(transforms)
+    return np.reshape(transforms, (trials, channels, -1))
 
 
-def dwt():
-    pass
+def dwt(input_matrix: np.array, order: int=3) -> np.array:
+    """
+    Applies a discrete wavelet transform to the data.
+    """
+    trials, channels, _ = np.shape(input_matrix)
+    wavelet = wave.Wavelet("db{}".format(order))
+
+    transform = np.array(wave.dwt(input_matrix, wavelet))
+    return np.reshape(transform, (trials, channels, -1))
 
 
-def wavelet():
-    pass
+def dwt_bank(input_matrix: np.array, level: int, wave_type: str) -> tuple:
+    """
+    Applies a filtering of `level` number of levels
+    to find approximation and details for a signal
+    using wavelet transformation.
+    """
+    wavelet = wave.Wavelet(wave_type)
+    approx, *details = wave.wavedec(input_matrix, wavelet, level=level)
+
+    return approx, details
+
+
+def dwt_summary(input_matrix: np.array, level: int=4, wave_type: str="db2") -> np.array:
+    """
+    Generates a summary of a wavelet bank.
+    """
+    approx, details = dwt_bank(input_matrix, level, wave_type)
+    details.append(approx)
+
+    mu = np.dstack([np.mean(detail, axis=2) for detail in details])
+    sigma = np.dstack([np.mean(detail, axis=2) for detail in details])
+    powers = np.dstack([np.sqrt(np.mean(np.square(detail), axis=2))**2 for detail in details])
+    diff = np.diff(mu, axis=2)
+
+    return np.dstack([mu, sigma, powers, diff])
+
+
+def dwt_spectrum(input_matrix: np.array, level: int=4, wave_type: str="db2") -> np.array:
+    """
+    Retrieves the full wavelet decomposition as a spectrum.
+    """
+    approx, details = dwt_bank(input_matrix, level, wave_type)
+    spectrum = np.dstack([approx, np.dstack(details)])
+
+    return spectrum
+

@@ -18,6 +18,13 @@ def pool(input_matrix: np.array) -> np.array:
     return pooled
 
 
+def summary(input_matrix: np.array) -> np.array:
+    """
+    Generates summary statistics for a number of signals.
+    """
+    pass
+
+
 def components(input_matrix: np.array) -> np.array:
     """
     Identifies the three prime components for facial recognition.
