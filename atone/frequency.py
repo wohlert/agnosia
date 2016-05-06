@@ -13,8 +13,8 @@ import pywt as wave
 def bandpass(input_matrix: np.array, fs: float, lowcut: float=0, highcut: float=None, order: int=5) -> np.array:
     """
     Applies a Butter bandpass filter to data X given the
-    input signals nyquist values and optional cutoff and
-    decimation factor.
+    input signals along with an upper and lower bandstop
+    frequency.
     """
     nyq = 0.5 * fs
 
@@ -29,8 +29,8 @@ def bandpass(input_matrix: np.array, fs: float, lowcut: float=0, highcut: float=
 
 def fft(trial, lower_limit: int=None, upper_limit: int=None):
     """
-    Transforms the trial using the discrete Fourier transform.
-    Applies other functions to ease signal banding.
+    Transforms the trial using the real-valued fast
+    Fourier transform within an optional band.
     """
     # Take the real fft of the trial
     transform = np.abs(rfft(trial, axis=1))
@@ -65,8 +65,7 @@ def filter_bank(input_matrix: np.array, bands: list=None) -> np.array:
     #
     # delta = 0.1 - 3 Hz
     # theta = 4 - 7 Hz
-    # alpha = 8 - 15 Hz / mu = 7.5 - 12 Hz
-    # - SMR = 12.5 - 15.5 Hz
+    # alpha = 8 - 15 Hz
     # beta = 16 - 31 Hz
     # low-gamma = 32 - 64 Hz approx.
     # high-gamma = approx. 64 - 100 Hz
@@ -107,21 +106,6 @@ def dwt_bank(input_matrix: np.array, level: int, wave_type: str) -> tuple:
     approx, *details = wave.wavedec(input_matrix, wavelet, level=level)
 
     return approx, details
-
-
-def dwt_summary(input_matrix: np.array, level: int=4, wave_type: str="db2") -> np.array:
-    """
-    Generates a summary of a wavelet bank.
-    """
-    approx, details = dwt_bank(input_matrix, level, wave_type)
-    details.append(approx)
-
-    mu = np.dstack([np.mean(detail, axis=2) for detail in details])
-    sigma = np.dstack([np.mean(detail, axis=2) for detail in details])
-    powers = np.dstack([np.sqrt(np.mean(np.square(detail), axis=2))**2 for detail in details])
-    diff = np.diff(mu, axis=2)
-
-    return np.dstack([mu, sigma, powers, diff])
 
 
 def dwt_spectrum(input_matrix: np.array, level: int=4, wave_type: str="db2") -> np.array:

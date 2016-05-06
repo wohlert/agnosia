@@ -2,9 +2,10 @@
 io
 
 Provides input and output operations for loading
-MEG data and creating submissions.
+MEG data - signals, sensorlocations and creating submissions.
 """
 
+from functools import reduce
 import numpy as np
 from scipy.io import loadmat
 
@@ -59,6 +60,24 @@ def load_subjects(folder: str, no_of_subjects: int=0):
     return x_train, x_test, y_train, y_test
 
 
+def load_subject(filepath: str):
+    """
+    Loads a single subject with names.
+    """
+    def get_subject(filename: str):
+        subject_name = filename.split("/")[-1]
+        head, *tail = subject_name.split(".")
+        return head
+
+    X = loadmat(filepath)['X']
+    ids = np.arange(1, len(X) + 1)
+
+    name = get_subject(filepath)
+    names = np.array(["{}/trial{}".format(name, i) for i in ids])
+
+    return X, names
+
+
 def load_meta(folder: str):
     """
     Loads the meta data for a signle .mat files.
@@ -71,6 +90,16 @@ def load_meta(folder: str):
     tmax = float(subject['tmax'])
 
     return sfreq, tmin, tmax
+
+
+def load_positions(filepath: str):
+    """
+    Loads sensor location .mat file.
+    """
+    sensor_placement = loadmat(filepath)
+    positions = sensor_placement['pos']
+
+    return positions
 
 
 def create_submission(ids, labels, filename: str):

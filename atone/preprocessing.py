@@ -24,19 +24,19 @@ def normalise(input_matrix: np.array) -> np.array:
     return zscore(input_matrix, axis=1)
 
 
+def min_max(x):
+    """
+    Uses minmax normalisation to scale input
+    """
+    return np.abs((np.min(x) - x) / (np.max(x) - np.min(x)))
+
+
 def smooth(input_matrix: np.array, window: int=17, order: int=2) -> np.array:
     """
     Apply Savitzky-Golay filtering to smooth the signal.
     """
     assert window % 2 == 1, "Window size must be odd"
     return savgol_filter(input_matrix, window, order)
-
-
-"""
-Dropout routines for finding significant channels.
-The channels will be along the second axis of the input matrix.
-Channels can be dropped out by using an applier.
-"""
 
 
 def dropout_channels_monte_carlo(input_matrix: np.array, output_labels: np.array) -> np.array:
@@ -121,10 +121,6 @@ def dropout_channels_norm(input_matrix: np.array, threshold: float=0.05) -> np.a
 
     return np.array(valid_channels)
 
-"""
-Applies cuts along the final axis of data (samples).
-"""
-
 
 def cut(input_matrix: np.array, start: int, end: int=None) -> np.array:
     """
@@ -158,6 +154,6 @@ def cut_m170(input_matrix: np.array, tmin: float, sfreq: int, window_size: float
 
 def downsample(input_matrix: np.array, factor: int=2):
     """
-    Downsampels the signal by a given factor.
+    Downsamples the signal by a given factor.
     """
     return decimate(input_matrix, factor, ftype="fir")

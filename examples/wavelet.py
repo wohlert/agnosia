@@ -14,7 +14,6 @@ import atone.io as io
 from atone.preprocessing import scale, cut
 from atone.frequency import bandpass, dwt_summary, dwt_spectrum
 from atone.features import pool
-from atone.appliers import pca
 from atone.pipeline import Pipeline
 
 np.random.seed(8829)

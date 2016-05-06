@@ -178,3 +178,6 @@ Temporary Items
 .apdisk
 
 .idea/
+
+data/*
+*.npy

@@ -15,7 +15,7 @@ setup(
     author_email='jesper@wohlert.nu',
 
     # useful: python setup.py sdist bdist_wheel upload
-    version='0.0.1',
+    version='0.1.0',
 
     description='Machine learning classifier for MEG data for prosopagnosia',
 
