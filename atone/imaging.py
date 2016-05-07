@@ -9,7 +9,8 @@ import numpy as np
 from scipy.interpolate import CloughTocher2DInterpolator
 from PIL import Image
 
-from .frequency import Filterbank, fft
+from .frequency import fft
+from .constants import DELTA, THETA, ALPHA
 
 
 def _cartesian_to_spherical(x: float, y: float, z: float) -> tuple:
@@ -50,21 +51,24 @@ def spectral_topography(input_matrix: np.array, normalisation=None) -> np.array:
     """
     trials, channels, samples = np.shape(input_matrix)
 
-    fourier = fft(input_matrix.reshape(-1, samples, channels))
+    transform = fft(input_matrix, lower_limit=1)
 
     if not normalisation:
         normalisation = lambda x: x
 
-    def band_transform(band):
+    def band_extraction(band):
         lower, upper = band
-        subband = np.mean(fourier[:, lower:upper, :], axis=1)
+        subband = np.mean(transform[:, :, lower:upper], axis=-1)
         subband = normalisation(subband)
 
         return subband
 
-    # delta, theta, alpha bands
-    bands = ((0, 3), (3, 7), (8, 15))
-    return np.dstack([band_transform(band) for band in bands]).reshape(-1, channels, 3)
+    bands = (DELTA, THETA, ALPHA)
+    return np.dstack([band_extraction(band) for band in bands]).reshape(-1, channels, 3)
+
+
+def spectral_topography_window(input_matrix: np.array, windows: int, normalisation=None) -> np.array:
+    pass
 
 
 def generate_images(values: np.array, coordinates: np.array, location: str, basenames: list, resolution: int=60):

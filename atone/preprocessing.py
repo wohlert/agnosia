@@ -15,20 +15,20 @@ def scale(input_matrix: np.array) -> np.array:
     return input_matrix * 1e12
 
 
-def normalise(input_matrix: np.array) -> np.array:
+def normalise(input_matrix: np.array, axis=1) -> np.array:
     """
     Normalises the data for input in certain classifiers.
     """
     from scipy.stats import zscore
 
-    return zscore(input_matrix, axis=1)
+    return zscore(input_matrix, axis=axis)
 
 
-def min_max(x):
+def min_max(x, axis=0):
     """
     Uses minmax normalisation to scale input
     """
-    return np.abs((np.min(x) - x) / (np.max(x) - np.min(x)))
+    return np.abs((np.min(x, axis=axis) - x) / (np.max(x, axis=axis) - np.min(x, axis=axis)))
 
 
 def smooth(input_matrix: np.array, window: int=17, order: int=2) -> np.array:

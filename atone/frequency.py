@@ -9,6 +9,8 @@ from numpy.fft import rfft
 import scipy.signal as signal
 import pywt as wave
 
+from .constants import *
+
 
 def bandpass(input_matrix: np.array, fs: float, lowcut: float=0, highcut: float=None, order: int=5) -> np.array:
     """
@@ -27,16 +29,16 @@ def bandpass(input_matrix: np.array, fs: float, lowcut: float=0, highcut: float=
     return signal.lfilter(numerator, denominator, input_matrix)
 
 
-def fft(trial, lower_limit: int=None, upper_limit: int=None):
+def fft(input_matrix: np.array, lower_limit: int=None, upper_limit: int=None):
     """
     Transforms the trial using the real-valued fast
     Fourier transform within an optional band.
     """
     # Take the real fft of the trial
-    transform = np.abs(rfft(trial, axis=1))
+    transform = np.abs(rfft(input_matrix, axis=-1))
 
-    # Remove all higher frequencies above limit
-    transform = transform[:, lower_limit:upper_limit]
+    # Apply bandstop
+    transform = transform[:, :, lower_limit:upper_limit]
 
     # Log10 of all values to scale
     return np.log10(transform)
@@ -45,7 +47,7 @@ def fft(trial, lower_limit: int=None, upper_limit: int=None):
 class Filterbank:
     def __init__(self, bands: list=None):
         if not bands:
-            self.__bands = [(0, 4), (4, 8), (8, 16), (16, 32), (32, 64), (64, 100)]
+            self.__bands = [DELTA, THETA, ALPHA, BETA, LOW_GAMMA, HIGH_GAMMA]
 
     def bands(self):
         return self.__bands
@@ -60,17 +62,8 @@ def filter_bank(input_matrix: np.array, bands: list=None) -> np.array:
     to separate the data. Then builds features
     from its eigenvalues.
     """
-
-    # Different frequency bands
-    #
-    # delta = 0.1 - 3 Hz
-    # theta = 4 - 7 Hz
-    # alpha = 8 - 15 Hz
-    # beta = 16 - 31 Hz
-    # low-gamma = 32 - 64 Hz approx.
-    # high-gamma = approx. 64 - 100 Hz
     if not bands:
-        bands = [(0, 4), (4, 8), (8, 16), (16, 32), (32, 64), (64, 100)]
+        bands = [DELTA, THETA, ALPHA, BETA, LOW_GAMMA, HIGH_GAMMA]
 
     low = max(np.min(bands), 1)
     high = min(np.max(bands), 128)
