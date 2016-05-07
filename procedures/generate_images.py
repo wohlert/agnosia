@@ -1,15 +1,19 @@
 import numpy as np
 import sys
-from scipy.stats import zscore
+import pandas as pd
 
 import atone.io as io
 from atone.pipeline import Pipeline
 from atone.preprocessing import scale, cut, normalise
 from atone.imaging import generate_images, spectral_topography
 
-X, names = io.load_subject("../data/" + str(sys.argv[1]))
+X, y, names = io.load_subject("../data/" + str(sys.argv[1]))
 sfreq, tmin, _ = io.load_meta("../data")
 onset = sfreq * abs(tmin)
+
+split = str(sys.argv[1]).split("/")
+filename = split[-1][:-3] + "csv"
+pd.DataFrame({"name": names, "label": y.ravel()}).to_csv(filename, mode="w", index=False, header=None)
 
 coordinates = np.load("sensormap.npy")
 

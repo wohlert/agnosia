@@ -11,7 +11,7 @@ from keras.models import Sequential
 from keras.layers import Activation, Dense, Dropout, Flatten
 from keras.layers import Convolution2D, MaxPooling2D
 from keras.optimizers import Adam
-from IPython import embed
+from sklearn.metrics import accuracy_score
 
 
 def create_single_frame(input_shape):
@@ -89,8 +89,7 @@ X_test = X_test.reshape(-1, 3, 120, 120)
 model.fit(X_train, y_train, batch_size=batch_size,
           nb_epoch=nb_epochs)
 
-embed()
-
 # Evaluate model
-score = model.evaluate(X_test, y_test, batch_size=batch_size)
-print(score)
+prediction = model.predict_classes(X_test, batch_size=batch_size)
+accuracy = accuracy_score(prediction, y_test)
+print(accuracy)

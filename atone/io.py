@@ -69,13 +69,16 @@ def load_subject(filepath: str):
         head, *tail = subject_name.split(".")
         return head
 
-    X = loadmat(filepath)['X']
+    subject = loadmat(filepath)
+    X = subject['X']
+    y = subject['y']
+
     ids = np.arange(1, len(X) + 1)
 
     name = get_subject(filepath)
     names = np.array(["{}/trial{}".format(name, i) for i in ids])
 
-    return X, names
+    return X, y, names
 
 
 def load_meta(folder: str):

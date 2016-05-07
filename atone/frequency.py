@@ -109,4 +109,3 @@ def dwt_spectrum(input_matrix: np.array, level: int=4, wave_type: str="db2") -> 
     spectrum = np.dstack([approx, np.dstack(details)])
 
     return spectrum
-
