@@ -24,11 +24,11 @@ def normalise(input_matrix: np.array, axis=1) -> np.array:
     return zscore(input_matrix, axis=axis)
 
 
-def min_max(x, axis=0):
+def min_max(x):
     """
-    Uses minmax normalisation to scale input
+    Uses minmax normalisation to scale input to the interval of 0-1.
     """
-    return np.abs((np.min(x, axis=axis) - x) / (np.max(x, axis=axis) - np.min(x, axis=axis)))
+    return np.abs((np.min(x) - x) / (np.max(x) - np.min(x)))
 
 
 def smooth(input_matrix: np.array, window: int=17, order: int=2) -> np.array:
@@ -129,6 +129,11 @@ def cut(input_matrix: np.array, start: int, end: int=None) -> np.array:
     Can also trim from both sides.
     """
     _, _, samples = np.shape(input_matrix)
+
+    start = int(start)
+
+    if end != None:
+        end = int(end)
 
     assert start < samples
 

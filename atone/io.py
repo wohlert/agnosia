@@ -5,7 +5,6 @@ Provides input and output operations for loading
 MEG data - signals, sensorlocations and creating submissions.
 """
 
-from functools import reduce
 import numpy as np
 from scipy.io import loadmat
 
@@ -71,7 +70,13 @@ def load_subject(filepath: str):
 
     subject = loadmat(filepath)
     X = subject['X']
-    y = subject['y']
+
+    try:
+        # Training subject
+        y = subject['y']
+    except KeyError:
+        # Test subject
+        y = subject['Id']
 
     ids = np.arange(1, len(X) + 1)
 
@@ -83,7 +88,7 @@ def load_subject(filepath: str):
 
 def load_meta(folder: str):
     """
-    Loads the meta data for a signle .mat files.
+    Loads the metadata for a signle .mat files.
     """
     train_files, _ = get_files(folder)
     subject = loadmat(train_files[0])

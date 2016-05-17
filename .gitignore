@@ -182,3 +182,5 @@ Temporary Items
 data/*
 *.npy
 images/
+*.hdf5
+*.csv
