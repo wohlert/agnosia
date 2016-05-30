@@ -1,69 +1,46 @@
 """
 wavelet
+
 """
-
-
 import numpy as np
-from keras.layers import Dense, Activation, Dropout
-from keras.optimizers import SGD
-from keras.models import Sequential
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
+from sklearn.svm import LinearSVC, SVC
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from atone.io import load_meta
+from utils import run_cv
 
-import atone.io as io
-from atone.preprocessing import scale, cut
-from atone.frequency import bandpass, dwt_summary, dwt_spectrum
-from atone.features import pool
-from atone.pipeline import Pipeline
 
 np.random.seed(8829)
-
-folder = "data"
-
-# Load data and metadata
-subjects = 1
-
-X_train, X_test, y_train, y_test = io.load_subjects(folder, no_of_subjects=subjects)
-sfreq, tmin, _ = io.load_meta(folder)
+sfreq, tmin, _ = load_meta("data")
 onset = int(abs(sfreq*tmin))
 
-# Create pipeline
-pipeline = Pipeline()
-pipeline.add(scale)
-pipeline.add(cut, [onset])
-pipeline.add(bandpass, [sfreq, 0.25, 25])  # Best bandpass based on cross validation
-pipeline.add(dwt_spectrum)
-pipeline.add(pool)
+def pipeline():
+    from atone.pipeline import Pipeline
+    from atone.preprocessing import scale, cut
+    from atone.frequency import dwt_summary
+    from atone.features import pool
 
-# Run pipeline
-X_train = pipeline.run(X_train)
-X_test = pipeline.run(X_test)
+    pipeline = Pipeline()
+    pipeline.add(scale)
+    pipeline.add(cut, [onset])
+    pipeline.add(lambda x: np.mean(x, axis=1))
+    pipeline.add(dwt_summary)
+    #pipeline.add(dwt_spectrum, [4, "db2", (1, 2, 3)])
+    return pipeline
 
-_, size = np.shape(X_train)
 
-# Create classifier
-model = Sequential()
-model.add(Dense(512, input_dim=size))
-model.add(Activation('linear'))
-model.add(Dropout(0.2))
-model.add(Dense(256))
-model.add(Activation('linear'))
-model.add(Dropout(0.2))
-model.add(Dense(1))
-model.add(Activation('sigmoid'))
+pipe = pipeline()
+model = LogisticRegression(penalty="l1", C=0.1)
+config = {"model": model, "pipeline": pipe, "subjects": 1}
+run_cv(config, **config)
 
-model.compile(loss='binary_crossentropy',
-              optimizer='sgd')
+model = LinearSVC(C=20)
+config = {"model": model, "pipeline": pipe, "subjects": 1}
+run_cv(config, **config)
 
-model.fit(X_train, y_train.ravel(),
-          batch_size=32, nb_epoch=5,
-          verbose=1)
+model = KNeighborsClassifier(12)
+config = {"model": model, "pipeline": pipe, "subjects": 1}
+run_cv(config, **config)
 
-prediction = model.predict_classes(X_test, batch_size=32)
-
-# model = LogisticRegression()
-# model.fit(X_train, y_train.ravel())
-
-# prediction = model.predict(X_test)
-
-print(accuracy_score(prediction, y_test.ravel()))

@@ -12,13 +12,13 @@ from PIL import Image
 import pywt as wave
 
 from .constants import DELTA, THETA, ALPHA
-from .preprocessing import min_max
+from .preprocessing import min_max, normalise
 from .frequency import bandpass, fft
 
 
 def _cartesian_to_spherical(x: float, y: float, z: float) -> tuple:
     """
-    Transform Cartesian coordinates to spherical.
+    Transform 3D Cartesian coordinates to spherical.
     """
     x2_y2 = x**2 + y**2
     radius = np.sqrt(x2_y2 + z**2)
@@ -29,7 +29,7 @@ def _cartesian_to_spherical(x: float, y: float, z: float) -> tuple:
 
 def _polar_to_cartesian(theta: float, rho: float) -> tuple:
     """
-    Transform polar coordinates to Cartesian.
+    Transform polar coordinates to 2D Cartesian.
     """
     x = rho * np.cos(theta)
     y = rho * np.sin(theta)
@@ -86,7 +86,7 @@ def spectral_topography(input_matrix: np.array, normalisation=None) -> np.array:
     Generates a single 3-dimensional spectral topography
     over the number of channels.
     """
-    return windowed_spectral_topography(input_matrix, frames=1, normalisation=normlisation)
+    return windowed_spectral_topography(input_matrix, frames=1, normalisation=normalisation)
 
 
 def windowed_wavelet_topography(input_matrix: np.array, frames: int=7):
@@ -110,7 +110,14 @@ def windowed_wavelet_topography(input_matrix: np.array, frames: int=7):
     Only the bottom 3 frequency bands are used to generate
     the topography due to the high frequency resolution.
     """
-    wavelet = wave.Wavelet("db4")
+    _, channels, _ = input_matrix.shape
+
+    # Attempt to use wavelet with highest resolution
+    scaling = lambda x: int(np.floor(0.5 + 0.5*(np.floor(x / 32))))
+    order = scaling(channels)
+
+    wavelet = wave.Wavelet("db{}".format(order))
+
     delta, theta, alpha, *_ = wave.wavedec(input_matrix, wavelet, level=5)
 
     frequency_bands = []
@@ -120,25 +127,29 @@ def windowed_wavelet_topography(input_matrix: np.array, frames: int=7):
 
         # Downsample and limit to `frames` number of samples
         division = samples // frames
-        cut_band = band[:, :, ::division]
-        cut_band = cut_band[:, :, :frames]
+        band = band[:, :, ::division]
+        band = band[:, :, :frames]
 
-        # Normalise along samples axis
-        normalised_band = np.apply_along_axis(min_max, 2, cut_band)
-
-        frequency_bands.append(normalised_band)
+        frequency_bands.append(band)
 
     frequency_bands = np.array(frequency_bands)
     frequency_bands = np.reshape(frequency_bands, (-1, channels, 3))
+
+    # Apply normalisation across samples
+    # frequency_bands = np.apply_along_axis(normalise, 0, frequency_bands)
 
     return frequency_bands
 
 
 def interpolate_spectrum(value: np.array, coordinates: np.array, resolution: int=64) -> np.array:
     """
-    Generates an image from a topography expressed in
-    3 colour dimensions along with a 2D map of channels.
+    Generates an image from a topography expressed in a number
+    of colour dimensions along with a 2D map of channels.
     """
+    try:
+        _, color_channels = value.shape
+    except ValueError:
+        color_channels = 1
 
     # Images should be square
     width = height = np.round(np.max(coordinates))
@@ -146,12 +157,16 @@ def interpolate_spectrum(value: np.array, coordinates: np.array, resolution: int
 
     x, y = np.meshgrid(np.arange(-width, width, step_size), np.arange(-height, height, step_size))
 
-    interpolation = CloughTocher2DInterpolator(coordinates, value, fill_value=0.0)
-    z = interpolation.__call__(np.c_[x.ravel(), y.ravel()])
+    interpolation = CloughTocher2DInterpolator(coordinates, value)
+    z = interpolation(np.c_[x.ravel(), y.ravel()])
 
     img_width = img_height = int(np.sqrt(len(z)))
 
-    img_data = z.reshape(img_width, img_height, 3)
+    if color_channels < 2:
+        img_data = np.reshape(z, (img_width, img_height))
+    else:
+        img_data = np.reshape(z, (img_width, img_height, color_channels))
+
     img = Image.fromarray((img_data * 255).astype(np.uint8))
 
     return img

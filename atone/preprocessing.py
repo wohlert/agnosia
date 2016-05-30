@@ -5,7 +5,7 @@ Provides routines for preprocessing of data.
 """
 
 import numpy as np
-from scipy.signal import savgol_filter, decimate
+from scipy.signal import savgol_filter
 
 
 def scale(input_matrix: np.array) -> np.array:
@@ -15,7 +15,7 @@ def scale(input_matrix: np.array) -> np.array:
     return input_matrix * 1e12
 
 
-def normalise(input_matrix: np.array, axis=1) -> np.array:
+def normalise(input_matrix: np.array, axis=0) -> np.array:
     """
     Normalises the data for input in certain classifiers.
     """
@@ -24,7 +24,7 @@ def normalise(input_matrix: np.array, axis=1) -> np.array:
     return zscore(input_matrix, axis=axis)
 
 
-def min_max(x):
+def min_max(x) -> np.array:
     """
     Uses minmax normalisation to scale input to the interval of 0-1.
     """
@@ -37,6 +37,15 @@ def smooth(input_matrix: np.array, window: int=17, order: int=2) -> np.array:
     """
     assert window % 2 == 1, "Window size must be odd"
     return savgol_filter(input_matrix, window, order)
+
+
+def remove_baseline(input_matrix: np.array, start: int) -> np.array:
+    """
+    Removes baseline noise from a signals.
+    """
+    start = int(start)
+    baseline = np.mean(input_matrix[:, :, :start], axis=-1)
+    return input_matrix - baseline[:, :, None]
 
 
 def dropout_channels_monte_carlo(input_matrix: np.array, output_labels: np.array) -> np.array:
@@ -122,6 +131,51 @@ def dropout_channels_norm(input_matrix: np.array, threshold: float=0.05) -> np.a
     return np.array(valid_channels)
 
 
+def get_magnetometers(file: str) -> np.array:
+    """
+    Returns the input matrix with only the data
+    from the magnetometers.
+
+    Expected no. of magnetometers: 102
+    """
+    meters = np.load(file)
+
+    find_magnetometers = np.vectorize(lambda x: bool(x.endswith("1")))
+    (magnetometers,) = np.where(find_magnetometers(meters))
+
+    return magnetometers
+
+
+def get_gradiometers(file: str) -> np.array:
+    """
+    Returns the input matrix with only the data
+    from the gradiometers.
+
+    Expected no. of gradiometers: 204
+    """
+    meters = np.load(file)
+
+    find_gradiometers = np.vectorize(lambda x: bool(not x.endswith("1")))
+    (gradiometers,) = np.where(find_gradiometers(meters))
+
+    return gradiometers
+
+
+def keep_channels(input_matrix: np.array, type: str) -> np.array:
+    """
+    Remove channels from matrix that are
+    not contained in channels.
+    """
+    channels = None
+
+    if type == "gradiometers":
+        channels = get_gradiometers("channel_names.npy")
+    elif type == "magnetometers":
+        channels = get_magnetometers("channel_names.npy")
+
+    return input_matrix[:, channels, :]
+
+
 def cut(input_matrix: np.array, start: int, end: int=None) -> np.array:
     """
     Removes samples before a given point,
@@ -140,14 +194,14 @@ def cut(input_matrix: np.array, start: int, end: int=None) -> np.array:
     return input_matrix[:, :, start:end].copy()
 
 
-def cut_m170(input_matrix: np.array, tmin: float, sfreq: int, window_size: float=5.0) -> np.array:
+def cut_m170(input_matrix: np.array, start: float, sfreq: int, window_size: float=5.0) -> np.array:
     """
     Cuts the samples around M170.
     window_size is the number of ms before and after n170.
     """
     window = window_size*0.01
 
-    impulse = abs(tmin)
+    impulse = abs(start)
     prime = impulse + 0.170
     nmin = prime - window
     nmax = prime + window
@@ -156,9 +210,3 @@ def cut_m170(input_matrix: np.array, tmin: float, sfreq: int, window_size: float
 
     return input_matrix[:, :, area].copy()
 
-
-def downsample(input_matrix: np.array, factor: int=2):
-    """
-    Downsamples the signal by a given factor.
-    """
-    return decimate(input_matrix, factor, ftype="fir")

@@ -29,13 +29,24 @@ def get_files(folder: str):
     return train_files, test_files
 
 
-def load_subjects(folder: str, no_of_subjects: int=0):
+def load_subjects(folder: str, no_of_subjects: int=0, cv: bool=False):
     """
     Loads a number of subjects and splits the data accordingly.
     """
     from sklearn.cross_validation import train_test_split
 
     train_files, test_files = get_files(folder)
+
+    if cv:
+        train_subjects = [loadmat(p) for p in train_files]
+
+        x_train = np.vstack([subject['X'] for subject in train_subjects[:-1]])
+        y_train = np.vstack([subject['y'] for subject in train_subjects[:-1]])
+
+        x_test = np.vstack([subject['X'] for subject in test_subjects[-1]])
+        y_test = np.vstack([subject['y'] for subject in test_subjects[-1]])
+
+        return x_train, x_test, y_train.ravel(), y_test.ravel()
 
     # No subjects chosen, do true split
     if no_of_subjects < 1:
@@ -56,7 +67,7 @@ def load_subjects(folder: str, no_of_subjects: int=0):
 
         x_train, x_test, y_train, y_test = train_test_split(x_full, y_full)
 
-    return x_train, x_test, y_train, y_test
+    return x_train, x_test, y_train.ravel(), y_test.ravel()
 
 
 def load_subject(filepath: str):
@@ -83,7 +94,7 @@ def load_subject(filepath: str):
     name = get_subject(filepath)
     names = np.array(["{}/trial{}".format(name, i) for i in ids])
 
-    return X, y, names
+    return X, y.ravel(), names
 
 
 def load_meta(folder: str):
@@ -123,3 +134,4 @@ def create_submission(ids, labels, filename: str):
     del dataframe[0]
 
     dataframe.to_csv(filename, cols=["Id", "Prediction"])
+

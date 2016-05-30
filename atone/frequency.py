@@ -12,6 +12,13 @@ import pywt as wave
 from .constants import *
 
 
+def downsample(input_matrix: np.array, factor: int=2):
+    """
+    Downsamples the signal by a given factor.
+    """
+    return signal.decimate(input_matrix, factor, ftype="fir")
+
+
 def bandpass(input_matrix: np.array, fs: float, lowcut: float=0, highcut: float=None, order: int=5) -> np.array:
     """
     Applies a Butter bandpass filter to data X given the
@@ -26,6 +33,18 @@ def bandpass(input_matrix: np.array, fs: float, lowcut: float=0, highcut: float=
     low = lowcut / nyq
     high = highcut / nyq
     numerator, denominator = signal.butter(order, [low, high], btype='band')
+    return signal.lfilter(numerator, denominator, input_matrix)
+
+
+def notch(input_matrix: np.array, fs: float, freq: int):
+    """
+    Uses a notch filter to remove single frequencies.
+    """
+    nyq = 0.5 * fs
+
+    low = float(freq-1) / nyq
+    high = float(freq+1) / nyq
+    numerator, denominator = signal.butter(1, [low, high], btype='bandstop')
     return signal.lfilter(numerator, denominator, input_matrix)
 
 
@@ -101,11 +120,34 @@ def dwt_bank(input_matrix: np.array, level: int, wave_type: str) -> tuple:
     return approx, details
 
 
-def dwt_spectrum(input_matrix: np.array, level: int=4, wave_type: str="db2") -> np.array:
+def dwt_spectrum(input_matrix: np.array, level: int=5, wave_type: str="db2", idx: tuple=None) -> np.array:
     """
     Retrieves the full wavelet decomposition as a spectrum.
     """
     approx, details = dwt_bank(input_matrix, level, wave_type)
-    spectrum = np.dstack([approx, np.dstack(details)])
+    combined = [approx, *details]
 
+    if idx:
+        spectra = [combined[i] for i in idx]
+    else:
+        spectra = combined
+
+    spectrum = np.dstack(spectra)
     return spectrum
+
+
+def dwt_summary(input_matrix: np.array, level: int=5, wave_type: str="db2") -> np.array:
+    """
+    Generates a summary of a wavelet bank.
+    """
+    approx, details = dwt_bank(input_matrix, level, wave_type)
+    details.append(approx)
+
+    mu = np.dstack([np.mean(detail, axis=2) for detail in details])
+    sigma = np.dstack([np.mean(detail, axis=2) for detail in details])
+    powers = np.dstack([np.sqrt(np.mean(np.square(detail), axis=2))**2 for detail in details])
+    diff = np.diff(mu, axis=2)
+
+    return np.dstack([mu, sigma, powers, diff])
+
+

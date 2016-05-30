@@ -5,7 +5,7 @@ import pandas as pd
 
 import atone.io as io
 from atone.pipeline import Pipeline
-from atone.preprocessing import scale, cut
+from atone.preprocessing import scale, cut, get_magnetometers, keep_channels
 from atone.imaging import windowed_wavelet_topography, generate_images, spatial_transforms
 
 
@@ -13,8 +13,11 @@ filename = str(sys.argv[1])
 
 data_dir = "data/"
 
+magnetometers = get_magnetometers("channel_names.npy")
+
 # Load sensor map and create spatial transform
 positions = io.load_positions(data_dir + "sensorspace.mat")
+positions = positions[magnetometers]
 coordinates = spatial_transforms(positions)
 
 # Load subject data and metadata
@@ -28,6 +31,7 @@ frames = 7
 pipe = Pipeline()
 pipe.add(scale)
 pipe.add(cut, [onset])
+pipe.add(keep_channels, ["magnetometers"])
 pipe.add(windowed_wavelet_topography, [frames])
 
 X = pipe.run(X)
