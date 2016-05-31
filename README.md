@@ -19,20 +19,22 @@ Run `python3 setup.py install` to install the module.
 The atone package should now be accessible systemwide for the version of
 python you installed it for.
 
-To run the example pipelines provided by the module you can do the following:
-`python3 -m examples/pooling.py`.
+The atone module can be called anywhere using:
+
+`import atone`
+
+To run the example classifiers provided in the examples you can do the following:
+
+`python3 -m classifiers/pooling.py`.
 
 Do note however, that the folders `train` and `test` must be present in the
 data folder or in an otherwise specified folder.
 
-## Provided examples
+## Provided classifiers
 
-The signal classification systems included are as follows.
+* Pooling (benchmark)
+* Bandpass
+* Wavelet transform
+* Independent Component Analysis
+* Deep neural network
 
-### Pooling
-
-Simple pooling over all channels for the direct time after stimulus.
-
-### N170
-
-Filterbanking for the gamma band.
