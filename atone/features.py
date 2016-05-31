@@ -54,7 +54,7 @@ def ica(input_matrix: np.array, inverse: bool=False):
     transform = ica.fit_transform(np.vstack(input_matrix))
     transform = np.reshape(transform, (-1, channels, samples))
 
-    covariance = np.mean(transform, axis=0)
+    covariance = np.corrcoef(np.mean(transform, axis=0))
 
     high, low = _correlate(covariance)
 

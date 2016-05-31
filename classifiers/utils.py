@@ -3,7 +3,7 @@ import pandas as pd
 from scipy.misc import imread
 import atone.io as io
 from sklearn.cross_validation import train_test_split
-from sklearn.metrics import classification_report, accuracy_score
+from sklearn.metrics import classification_report, accuracy_score, confusion_matrix
 
 import logging
 logging.basicConfig(filename='scores.log', level=logging.DEBUG)
@@ -108,6 +108,7 @@ def run_cv(config, pipeline, model, subjects: int=1):
 
         y_pred = model.predict(X_test_pre)
         score = accuracy_score(y_test, y_pred)
+        print(confusion_matrix(y_test, y_pred))
 
         mean_score += score
 

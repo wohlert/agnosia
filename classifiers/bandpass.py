@@ -6,7 +6,7 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.grid_search import GridSearchCV
 from atone.io import load_meta
-from utils import run_loo
+from utils import run_cv
 
 
 np.random.seed(8829)
@@ -22,7 +22,6 @@ def pipeline():
     pipeline = Pipeline()
     pipeline.add(scale)
     pipeline.add(cut, [onset])
-    pipeline.add(keep_channels, ["magnetometers"])
     pipeline.add(downsample, [2])
     pipeline.add(bandpass, [sfreq, 1.25, 25])
     pipeline.add(pool)
@@ -31,5 +30,6 @@ def pipeline():
 
 pipe = pipeline()
 model = LogisticRegression(penalty="l1", C=0.1)
-config = {"model": model, "pipeline": pipe}
-run_loo(config, **config)
+config = {"model": model, "pipeline": pipe, "subjects": 1}
+run_cv(config, **config)
+
