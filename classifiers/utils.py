@@ -1,3 +1,10 @@
+"""
+utils
+
+Provides utility functions for the
+classifiers.
+"""
+
 import numpy as np
 import pandas as pd
 from scipy.misc import imread
@@ -7,6 +14,7 @@ from sklearn.metrics import classification_report, accuracy_score, confusion_mat
 
 import logging
 logging.basicConfig(filename='scores.log', level=logging.DEBUG)
+
 
 def reformat_images(X, shape):
     X = X.astype("float32")

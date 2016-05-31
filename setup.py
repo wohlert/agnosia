@@ -15,7 +15,7 @@ setup(
     author_email='jesper@wohlert.nu',
 
     # useful: python setup.py sdist bdist_wheel upload
-    version='0.1.0',
+    version='1.0.0',
 
     description='Machine learning classifier for MEG data for prosopagnosia',
 
@@ -37,5 +37,5 @@ setup(
     # project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    # install_requires=required,
+    install_requires=required,
 )

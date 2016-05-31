@@ -1,4 +1,8 @@
 """
+ica
+
+Finds the independent components
+and classifies directly in these
 """
 import numpy as np
 from sklearn.linear_model import LogisticRegression
@@ -27,6 +31,5 @@ def pipeline():
 pipe = pipeline()
 model = LogisticRegression(penalty="l1", C=0.1)
 config = {"pipeline": pipe, "model": model, "subjects": 1}
-
 run_cv(config, **config)
 

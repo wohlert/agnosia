@@ -30,6 +30,5 @@ def pipeline():
 pipe = pipeline()
 model = SVC()
 config = {"model": model, "pipeline": pipe, "subjects": 1}
-
 run_cv(config, **config)
 

@@ -1,10 +1,12 @@
 """
 bandpass
 
+Applies a smoothing bandpass on the data
+along with a downsampling.
 """
+
 import numpy as np
 from sklearn.linear_model import LogisticRegression
-from sklearn.grid_search import GridSearchCV
 from atone.io import load_meta
 from utils import run_cv
 

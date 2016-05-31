@@ -77,6 +77,9 @@ def create_multi_frame(cnn_shape, frames):
 
 
 def functional_model(image_shape, frames):
+    """
+    Creates a neural network using the functional API for Keras.
+    """
 
     conv_input = Input(shape=image_shape)
 
@@ -158,10 +161,6 @@ history = model.fit(X_train, y_train.ravel(), batch_size=batch_size,
 
 # Evaluate model
 prediction = model.predict(X_test, batch_size=batch_size)
-
-from IPython import embed
-embed()
-
 accuracy = accuracy_score(prediction, y_test.ravel())
 print(accuracy)
 
